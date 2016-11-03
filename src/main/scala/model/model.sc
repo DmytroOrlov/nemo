@@ -1,6 +1,6 @@
-//class Data(val value: String) extends Serializable
-
 import java.io._
+
+import model.Data
 
 val data = new Data("1")
 val fileName = "data1"
