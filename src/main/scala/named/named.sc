@@ -1,0 +1,2 @@
+import named.Named._
+
