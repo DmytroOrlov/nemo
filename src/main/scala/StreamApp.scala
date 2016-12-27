@@ -1,9 +1,8 @@
-import java.nio.file.Paths
-
 import akka.actor.ActorSystem
-import akka.stream.ActorMaterializer
-import akka.stream.scaladsl.{FileIO, Source}
-import akka.util.ByteString
+import akka.stream.scaladsl.Source
+import akka.stream.{ActorMaterializer, OverflowStrategy, ThrottleMode}
+
+import scala.concurrent.duration._
 
 object StreamApp extends App {
   implicit val system = ActorSystem("StreamApp")
@@ -13,8 +12,10 @@ object StreamApp extends App {
   val factorials = source.scan(BigInt(1))((acc, next) => acc * next)
 
   val result = factorials
-    .map(num => ByteString(s"$num\n"))
-    .runWith(FileIO.toPath(Paths.get("factorials.txt")))
+    .zipWith(Source(0 to 100))((num, idx) => s"$idx! = $num")
+    .buffer(1, OverflowStrategy.dropHead)
+    .throttle(1, 1.second, 1, ThrottleMode.shaping)
+    .runForeach(println)
 
   result.onComplete(_ => system.terminate())(system.dispatcher)
 }
