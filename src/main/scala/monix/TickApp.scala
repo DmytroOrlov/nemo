@@ -5,7 +5,7 @@ import monix.reactive._
 
 import scala.concurrent.duration._
 
-object MonixApp extends App {
+object TickApp extends App {
   val tick = {
     Observable.interval(1.second)
   }
